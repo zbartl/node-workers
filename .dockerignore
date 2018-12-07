@@ -1,0 +1,8 @@
+# Top Level
+.git/
+.vscode/
+.idea/
+
+# Common Files/folders
+**/node_modules/
+**/.DS_Store

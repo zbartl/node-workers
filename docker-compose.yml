@@ -1,0 +1,50 @@
+# Dev config
+# Builds image locally and exposes additional ports for debugging
+version: '3'
+
+volumes:
+  ? rabbitmq
+
+services:
+  np_rabbitmq:
+    container_name: np_rabbitmq
+    image: rabbitmq:3-management-alpine
+    restart: unless-stopped
+    ports:
+      - '5672:5672'
+      - '127.0.0.1:15672:15672'
+    volumes:
+      - 'rabbitmq:/var/lib/rabbitmq'
+
+  np_api:
+    container_name: np_api
+    image: np_api:dev
+    build:
+      context: ./api
+    env_file: ./api/.env
+    ports:
+      - '127.0.0.1:4000:4000'
+    depends_on:
+      - np_rabbitmq
+
+  np_worker_1:
+    container_name: np_worker_1
+    image: np_worker:dev
+    build:
+      context: ./worker
+    env_file: ./worker/.env
+    ports:
+      - '127.0.0.1:4001:4001'
+    depends_on:
+      - np_rabbitmq
+
+  np_worker_2:
+    container_name: np_worker_2
+    image: np_worker:dev
+    build:
+      context: ./worker
+    env_file: ./worker/.env
+    ports:
+      - '127.0.0.1:4002:4001'
+    depends_on:
+      - np_rabbitmq
